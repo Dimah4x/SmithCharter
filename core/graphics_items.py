@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import (
     QGraphicsScene, QGraphicsView,
     QGraphicsSimpleTextItem, QColorDialog
 )
-from PyQt5.QtGui import QBrush, QPen, QColor
-from PyQt5.QtCore import Qt, QPointF, QTimer
+from PyQt5.QtGui import QBrush, QPen, QColor, QFont
+from PyQt5.QtCore import Qt, QPointF, QTimer, QRectF
 from utils.smith_snap import snap_to_smith
 import numpy as np
 
@@ -36,7 +36,85 @@ class DraggableText(QGraphicsTextItem):
     def __init__(self, text):
         super().__init__(text)
         self.setTextInteractionFlags(Qt.TextEditorInteraction)
-        self.setFlags(self.ItemIsMovable | self.ItemIsSelectable | self.ItemIsFocusable)
+        self.setFlags(
+            QGraphicsTextItem.ItemIsMovable |
+            QGraphicsTextItem.ItemIsSelectable |
+            QGraphicsTextItem.ItemIsFocusable
+        )
+
+        self.default_font_size = 16
+        self.min_font_size = 8
+
+        font = QFont()
+        font.setPointSize(self.default_font_size)
+        self.setFont(font)
+
+        self.resize_handle_size = 10
+        self.resizing = False
+
+        self.base_width = 150
+        self.setTextWidth(self.base_width)
+
+    def paint(self, painter, option, widget):
+        super().paint(painter, option, widget)
+
+        if self.isSelected():
+            rect = self.boundingRect()
+            handle_rect = QRectF(
+                rect.right() - self.resize_handle_size,
+                rect.bottom() - self.resize_handle_size,
+                self.resize_handle_size,
+                self.resize_handle_size
+            )
+            painter.setBrush(Qt.gray)
+            painter.drawRect(handle_rect)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            rect = self.boundingRect()
+            handle_rect = QRectF(
+                rect.right() - self.resize_handle_size,
+                rect.bottom() - self.resize_handle_size,
+                self.resize_handle_size,
+                self.resize_handle_size
+            )
+            if handle_rect.contains(event.pos()):
+                self.resizing = True
+                event.accept()
+                return
+
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self.resizing:
+            # delta_x controls width
+            delta_x = max(30, event.pos().x())
+            delta_y = max(20, event.pos().y())
+
+            # Update text width first
+            self.setTextWidth(delta_x)
+
+            # Scale font size based on width scaling
+            scale_ratio = delta_x / self.base_width
+            new_font_size = max(self.min_font_size, self.default_font_size * scale_ratio)
+
+            font = self.font()
+            font.setPointSizeF(new_font_size)
+            self.setFont(font)
+
+            self.update()
+            event.accept()
+            return
+
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton and self.resizing:
+            self.resizing = False
+            event.accept()
+            return
+
+        super().mouseReleaseEvent(event)
 
     def contextMenuEvent(self, event):
         menu = QMenu()
@@ -50,6 +128,7 @@ class DraggableText(QGraphicsTextItem):
             color = QColorDialog.getColor()
             if color.isValid():
                 self.setDefaultTextColor(color)
+
 
 class StretchHandle(QGraphicsEllipseItem):
     def __init__(self, parent_object, which_end):

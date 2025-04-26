@@ -4,9 +4,17 @@ from PyQt5.QtCore import QRectF, Qt, QPointF
 from core.graphics_items import MovablePoint, StretchableArrowWithHandles, DraggableText, SnapCircleItem
 from utils.smith_snap import generate_smith_values
 import os
+import sys
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 import numpy as np
+
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 class SmithChartView(QGraphicsView):
     def __init__(self):
@@ -18,11 +26,12 @@ class SmithChartView(QGraphicsView):
         self.setRenderHint(QPainter.TextAntialiasing)
         self.setRenderHint(QPainter.SmoothPixmapTransform)
         self.setAlignment(Qt.AlignCenter)
-
+        self._pan = False
+        self._pan_start = QPointF()
         self.setDragMode(QGraphicsView.ScrollHandDrag)
-
-        if os.path.exists("resources/smith_chart_bg.png"):
-            bg = QPixmap("resources/smith_chart_bg.png")
+        bg_path = resource_path("resources/smith_chart_bg.png")
+        if os.path.exists(bg_path):
+            bg = QPixmap(bg_path)
         else:
             print("Image not found, generating Smith chart with matplotlib...")
             bg = self.generate_matplotlib_smith_chart()
@@ -68,10 +77,9 @@ class SmithChartView(QGraphicsView):
         circle = plt.Circle((center_x, center_y), radius=radius, fill=False, linestyle='--', color='gray', linewidth=0.8)
         ax.add_artist(circle)
 
-    # 🔥 RESIZE SUPPORT
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self.fitInView(self.bg_item, Qt.KeepAspectRatio)
+    # def resizeEvent(self, event):
+    #     super().resizeEvent(event)
+    #     self.fitInView(self.bg_item, Qt.KeepAspectRatio)
 
     def add_point(self):
         point = MovablePoint(5)

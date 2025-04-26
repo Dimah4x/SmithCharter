@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
 from PyQt5.QtGui import QPixmap, QImage, QPainter
-from PyQt5.QtCore import QRectF, Qt
+from PyQt5.QtCore import QRectF, Qt, QPointF
 from core.graphics_items import MovablePoint, StretchableArrowWithHandles, DraggableText, SnapCircleItem
 from utils.smith_snap import generate_smith_values
 import os
@@ -20,6 +20,8 @@ class SmithChartView(QGraphicsView):
         self.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         # self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._pan = False
+        self._pan_start = QPointF()
 
 
         if os.path.exists("resources/smith_chart_bg.png"):
@@ -117,4 +119,29 @@ class SmithChartView(QGraphicsView):
     def resizeEvent(self, event):
         super().resizeEvent(event)
 
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MiddleButton:
+            self._pan = True
+            self._pan_start = event.pos()
+            self.setCursor(Qt.ClosedHandCursor)  # Show closed hand
+        else:
+            super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self._pan:
+            delta = event.pos() - self._pan_start
+            self._pan_start = event.pos()
+
+            # Move scrollbars
+            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
+        else:
+            super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MiddleButton:
+            self._pan = False
+            self.setCursor(Qt.ArrowCursor)  # Restore cursor
+        else:
+            super().mouseReleaseEvent(event)
 

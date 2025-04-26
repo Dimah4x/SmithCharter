@@ -13,29 +13,27 @@ class SmithChartView(QGraphicsView):
         super().__init__()
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
-        self.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
+
         self.setRenderHint(QPainter.Antialiasing)
         self.setRenderHint(QPainter.TextAntialiasing)
         self.setRenderHint(QPainter.SmoothPixmapTransform)
-        self.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        # self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self._pan = False
-        self._pan_start = QPointF()
+        self.setAlignment(Qt.AlignCenter)
 
+        self.setDragMode(QGraphicsView.ScrollHandDrag)
 
         if os.path.exists("resources/smith_chart_bg.png"):
             bg = QPixmap("resources/smith_chart_bg.png")
         else:
             print("Image not found, generating Smith chart with matplotlib...")
-            # bg = self.generate_matplotlib_smith_chart()
+            bg = self.generate_matplotlib_smith_chart()
 
-
-        # 🔥 Save the background as a QGraphicsPixmapItem
         self.bg_item = QGraphicsPixmapItem(bg)
         self.scene.addItem(self.bg_item)
 
-        self.setSceneRect(self.bg_item.boundingRect())  # Set scene rect to match background
+        rect = self.bg_item.boundingRect()
+        margin = 500
+        expanded_rect = rect.adjusted(-margin, -margin, margin, margin)
+        self.setSceneRect(expanded_rect)
 
         self.fitInView(self.bg_item, Qt.KeepAspectRatio)
 

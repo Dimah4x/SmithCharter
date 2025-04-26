@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1748b900-16a6-4979-bf3d-2898ba4fda4b" name="Changes" comment="added middle mouse dragging when zoomed in">
+    <list default="true" id="1748b900-16a6-4979-bf3d-2898ba4fda4b" name="Changes" comment="added text resize option for text box">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/graphics_items.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/graphics_items.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/smith_chart_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/smith_chart_view.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +98,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745704736372</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="added text resize option for text box">
+      <option name="closed" value="true" />
+      <created>1745706685654</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1745706685654</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -116,6 +124,7 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="initial commit&#10;bg using smithchart &#10;ability to add arrows, circles, points&#10;implemented zoom &#10;added ability to change color of objects" />
     <MESSAGE value="added middle mouse dragging when zoomed in" />
-    <option name="LAST_COMMIT_MESSAGE" value="added middle mouse dragging when zoomed in" />
+    <MESSAGE value="added text resize option for text box" />
+    <option name="LAST_COMMIT_MESSAGE" value="added text resize option for text box" />
   </component>
 </project>

@@ -179,13 +179,21 @@ class StretchableArrowWithHandles(QGraphicsLineItem):
     def __init__(self, start, end):
         super().__init__(*start, *end)
         self.setPen(QPen(Qt.blue, 2))
-        self.setFlags(QGraphicsItem.ItemIsSelectable)
+        self.setFlags(
+            QGraphicsItem.ItemIsSelectable |
+            QGraphicsItem.ItemSendsScenePositionChanges |
+            QGraphicsItem.ItemSendsGeometryChanges
+        )
 
         self.start_handle = StretchHandle(self, 'start')
         self.end_handle = StretchHandle(self, 'end')
 
         self.start_handle.setPos(QPointF(*start))
         self.end_handle.setPos(QPointF(*end))
+
+        # Initially hide handles
+        self.start_handle.setVisible(False)
+        self.end_handle.setVisible(False)
 
     def add_to_scene(self, scene):
         scene.addItem(self)
@@ -198,21 +206,22 @@ class StretchableArrowWithHandles(QGraphicsLineItem):
         elif which == 'end':
             self.setLine(self.line().x1(), self.line().y1(), pos.x(), pos.y())
 
+    def itemChange(self, change, value):
+        if change == QGraphicsItem.ItemSelectedChange:
+            selected = bool(value)
+            self.start_handle.setVisible(selected)
+            self.end_handle.setVisible(selected)
+        return super().itemChange(change, value)
+
     def contextMenuEvent(self, event):
         menu = QMenu()
-        delete_action = menu.addAction("Delete")
-        color_action = menu.addAction("Change Color")
-        selected = menu.exec_(event.screenPos())
-
-        if selected == delete_action:
+        delete = menu.addAction("Delete")
+        if menu.exec_(event.screenPos()) == delete:
             scene = self.scene()
             scene.removeItem(self)
             scene.removeItem(self.start_handle)
             scene.removeItem(self.end_handle)
-        elif selected == color_action:
-            color = QColorDialog.getColor()
-            if color.isValid():
-                self.setPen(QPen(color, 2))
+
 
 class SnapCircleItem(QGraphicsEllipseItem):
     def __init__(self):

@@ -215,12 +215,19 @@ class StretchableArrowWithHandles(QGraphicsLineItem):
 
     def contextMenuEvent(self, event):
         menu = QMenu()
-        delete = menu.addAction("Delete")
-        if menu.exec_(event.screenPos()) == delete:
+        delete_action = menu.addAction("Delete")
+        color_action = menu.addAction("Change Color")
+        selected = menu.exec_(event.screenPos())
+
+        if selected == delete_action:
             scene = self.scene()
             scene.removeItem(self)
             scene.removeItem(self.start_handle)
             scene.removeItem(self.end_handle)
+        elif selected == color_action:
+            color = QColorDialog.getColor()
+            if color.isValid():
+                self.setPen(QPen(color, 2))
 
 
 class SnapCircleItem(QGraphicsEllipseItem):
